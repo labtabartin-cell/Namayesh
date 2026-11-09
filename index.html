@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c10">
+<title>اتصال دستگاه‌ها</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0c10;
+    --bg-elev: #0f1218;
+    --surface: #14181f;
+    --surface-hover: #1a1f28;
+    --border: #232833;
+    --border-hover: #323845;
+    --text: #e6e8ec;
+    --text-dim: #9ba1ad;
+    --text-muted: #6b7280;
+    --accent: #22d3ee;
+    --accent-bg: rgba(34, 211, 238, 0.1);
+    --accent-border: rgba(34, 211, 238, 0.3);
+    --success: #34d399;
+    --success-bg: rgba(52, 211, 153, 0.1);
+    --success-border: rgba(52, 211, 153, 0.3);
+    --warning: #fbbf24;
+    --warning-bg: rgba(251, 191, 36, 0.1);
+    --warning-border: rgba(251, 191, 36, 0.3);
+    --danger: #f87171;
+    --danger-bg: rgba(248, 113, 113, 0.1);
+    --danger-border: rgba(248, 113, 113, 0.3);
+    --radius: 14px;
+    --radius-lg: 20px;
+    --radius-sm: 8px;
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(34, 211, 238, 0.06), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(99, 102, 241, 0.06), transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    transition: max-width 0.3s var(--ease), min-height 0.3s var(--ease);
+  }
+
+  body.monitor-mode #app {
+    max-width: 900px;
+    min-height: 600px;
+  }
+
+  /* ---------- Shared ---------- */
+  h1, h2, h3 { font-weight: 600; line-height: 1.35; }
+  h1 { font-size: 22px; }
+  h2 { font-size: 17px; }
+  h3 { font-size: 15px; }
+
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s var(--ease);
+  }
+  .icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* ---------- Mode Select ---------- */
+  .mode-screen { display: flex; flex-direction: column; flex: 1; }
+
+  .mode-header { text-align: center; margin: 16px 0 28px; }
+  .mode-header h1 { margin-bottom: 8px; letter-spacing: -0.01em; }
+  .mode-header p { color: var(--text-muted); font-size: 14px; }
+
+  .mode-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    transition: all 0.2s var(--ease);
+    position: relative;
+    overflow: hidden;
+  }
+  .mode-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-bg), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease);
+  }
+  .mode-card:hover {
+    border-color: var(--accent-border);
+    transform: translateY(-2px);
+  }
+  .mode-card:hover::before { opacity: 1; }
+  .mode-card:active { transform: translateY(0); }
+
+  .mode-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .mode-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    position: relative;
+    z-index: 1;
+  }
+  .mode-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- Devices (fallback / switcher) ---------- */
+  .devices-screen { display: flex; flex-direction: column; flex: 1; }
+
+  .mode-badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 6px 12px;
+    border-radius: 99px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+  }
+
+  .devices-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .scan-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .scan-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: scanPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes scanPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .device-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    flex: 1;
+    margin: 0 -4px;
+    padding: 0 4px;
+  }
+
+  .device-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 15px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    text-align: right;
+    transition: all 0.15s var(--ease);
+    animation: itemIn 0.35s var(--ease) backwards;
+  }
+  .device-item:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+  }
+  .device-item:active { transform: scale(0.99); }
+
+  @keyframes itemIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .device-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .device-info { flex: 1; min-width: 0; }
+  .device-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .device-type {
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  .device-arrow { color: var(--text-muted); display: flex; }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 16px;
+    flex: 1;
+  }
+
+  /* ---------- Session ---------- */
+  .session-screen { display: flex; flex-direction: column; flex: 1; gap: 16px; }
+
+  .conn-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    transition: all 0.25s var(--ease);
+  }
+  .conn-pill .conn-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+  .conn-pill.connecting {
+    color: var(--warning);
+    border-color: var(--warning-border);
+    background: var(--warning-bg);
+  }
+  .conn-pill.connecting .conn-dot {
+    background: var(--warning);
+    animation: scanPulse 1s ease-in-out infinite;
+  }
+  .conn-pill.connected {
+    color: var(--success);
+    border-color: var(--success-border);
+    background: var(--success-bg);
+  }
+  .conn-pill.connected .conn-dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
+  .conn-pill.disconnected {
+    color: var(--danger);
+    border-color: var(--danger-border);
+    background: var(--danger-bg);
+  }
+  .conn-pill.disconnected .conn-dot { background: var(--danger); }
+
+  /* Connection visual */
+  .connection-visual {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .device-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .node-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--surface-hover);
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .device-node.target .node-icon {
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+  .node-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+  }
+  .device-node.target .node-label { color: var(--text); font-weight: 500; }
+
+  .conn-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    min-width: 30px;
+  }
+  .conn-line.connected {
+    background: linear-gradient(90deg, var(--success), var(--accent), var(--success));
+    background-size: 200% 100%;
+    animation: flowLine 2s linear infinite;
+  }
+  @keyframes flowLine {
+    from { background-position: 0% 0; }
+    to { background-position: -200% 0; }
+  }
+
+  /* Control panel */
+  .control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .control-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+
+  .control-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+  }
+  .control-label .value { color: var(--text); font-weight: 600; }
+
+  .media-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .ctrl-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--surface-hover);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s var(--ease);
+  }
+  .ctrl-btn:hover { background: var(--border); }
+  .ctrl-btn:active { transform: scale(0.94); }
+  .ctrl-btn.primary {
+    width: 54px;
+    height: 54px;
+    background: var(--accent);
+    color: #0a0c10;
+  }
+  .ctrl-btn.primary:hover { background: #4fe0f5; }
+
+  .slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--surface-hover);
+    outline: none;
+    cursor: pointer;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 0 4px var(--accent-bg);
+    transition: box-shadow 0.15s var(--ease);
+  }
+  .slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 6px var(--accent-bg); }
+  .slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 0 4px var(--accent-bg);
+  }
+
+  .message-row { display: flex; gap: 8px; }
+
+  .text-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.15s var(--ease);
+  }
+  .text-input:focus { border-color: var(--accent-border); }
+  .text-input::placeholder { color: var(--text-muted); }
+
+  .btn-primary {
+    padding: 10px 18px;
+    background: var(--accent);
+    color: #0a0c10;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.15s var(--ease);
+    white-space: nowrap;
+  }
+  .btn-primary:hover { background: #4fe0f5; }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .last-sent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    animation: itemIn 0.3s var(--ease);
+  }
+  .last-sent-label { color: var(--success); font-weight: 500; }
+  .last-sent-value {
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60%;
+  }
+
+  /* ---------- Monitor Display ---------- */
+  .monitor-screen { display: flex; flex-direction: column; flex: 1; gap: 16px; }
+
+  .monitor-display {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: var(--radius);
+    background: radial-gradient(circle at center, rgba(34, 211, 238, 0.04), transparent 65%);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    min-height: 380px;
+  }
+
+  .display-pulse {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .display-pulse::before,
+  .display-pulse::after {
+    content: '';
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    border: 1px solid var(--accent-border);
+    border-radius: 50%;
+    animation: ringPulse 4s ease-out infinite;
+  }
+  .display-pulse::after { animation-delay: 2s; }
+  @keyframes ringPulse {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+
+  .display-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: itemIn 0.4s var(--ease);
+  }
+  .display-icon {
+    color: var(--accent);
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+  .display-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .display-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Modal ---------- */
+  #modal-root { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+  #modal-root:not(:empty) { pointer-events: auto; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.2s var(--ease);
+  }
+  @media (min-width: 640px) {
+    .modal-overlay { align-items: center; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 420px;
+    padding: 18px;
+    animation: modalIn 0.25s var(--ease);
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 0 2px;
+  }
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.15s var(--ease);
+  }
+  .modal-close:hover { background: var(--surface-hover); color: var(--text); }
+
+  /* ---------- Toasts ---------- */
+  #toasts {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    pointer-events: none;
+    width: calc(100% - 32px);
+    max-width: 360px;
+  }
+
+  .toast {
+    padding: 10px 18px;
+    background: var(--surface-hover);
+    border: 1px solid var(--border-hover);
+    border-radius: 99px;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s var(--ease);
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: none; }
+
+  /* ---------- Utility ---------- */
+  .fade-in { animation: fadeIn 0.25s var(--ease); }
+  .slide-up { animation: itemIn 0.3s var(--ease); }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+
+  @media (max-width: 480px) {
+    body { padding: 10px; }
+    #app { padding: 16px; border-radius: 16px; min-height: 480px; }
+    body.monitor-mode #app { min-height: 520px; }
+    .mode-cards { grid-template-columns: 1fr; }
+    .mode-card { padding: 24px 16px; flex-direction: row; justify-content: flex-start; text-align: right; gap: 16px; }
+    .mode-icon { width: 48px; height: 48px; border-radius: 12px; }
+    .mode-desc { font-size: 12px; }
+    h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toasts"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ---------- Icons ---------- */
+  const ICONS = {
+    phone: '<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/>',
+    laptop: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M2 20h20"/>',
+    tablet: '<rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M11 18h2"/>',
+    tv: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="m17 2-5 5-5-5"/>',
+    desktop: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  };
+
+  function icon(name, size) {
+    size = size || 20;
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || ICONS.desktop) + '</svg>';
+  }
+
+  function svg(paths, size) {
+    size = size || 20;
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+  }
+
+  const S = {
+    back: '<path d="M9 18l6-6-6-6"/>',
+    chevronLeft: '<path d="M15 18l-6-6 6-6"/>',
+    x: '<path d="M18 6L6 18M6 6l12 12"/>',
+    sliders: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+    monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    play: '<polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/>',
+    pause: '<rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/>',
+    prev: '<polygon points="19 20 9 12 19 4 19 20" fill="currentColor" stroke="none"/><rect x="5" y="4" width="2" height="16" rx="1" fill="currentColor" stroke="none"/>',
+    next: '<polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none"/><rect x="17" y="4" width="2" height="16" rx="1" fill="currentColor" stroke="none"/>',
+    switch: '<path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>',
+    refresh: '<path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+    wifi: '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
+  };
+
+  /* ---------- Device detection ---------- */
+  function detectSelf() {
+    const ua = navigator.userAgent;
+    if (/iPhone|iPod/.test(ua)) return { type: 'phone', name: 'iPhone' };
+    if (/iPad/.test(ua)) return { type: 'tablet', name: 'iPad' };
+    if (/Android/.test(ua) && /Mobile/.test(ua)) return { type: 'phone', name: 'اندروید' };
+    if (/Android/.test(ua)) return { type: 'tablet', name: 'تبلت اندروید' };
+    if (/Macintosh|Mac OS X/.test(ua)) return { type: 'laptop', name: 'مک' };
+    if (/Windows/.test(ua)) return { type: 'desktop', name: 'ویندوز' };
+    if (/Linux/.test(ua)) return { type: 'desktop', name: 'لینوکس' };
+    return { type: 'desktop', name: 'این دستگاه' };
+  }
+
+  const SELF = detectSelf();
+
+  /* ---------- State ---------- */
+  const state = {
+    view: 'mode',
+    mode: null,
+    target: null,
+    connection: 'idle',
+    showSwitcher: false,
+    playing: false,
+    volume: 60,
+    lastSent: null,
+    devices: [
+      { id: 'd1', name: 'iPhone 15 Pro', type: 'phone' },
+      { id: 'd2', name: 'MacBook Pro', type: 'laptop' },
+      { id: 'd3', name: 'iPad Air', type: 'tablet' },
+      { id: 'd4', name: 'سامسونگ Smart TV', type: 'tv' },
+      { id: 'd5', name: 'Living Room PC', type: 'desktop' },
+      { id: 'd6', name: 'Pixel 8', type: 'phone' },
+    ]
+  };
+
+  const TYPE_LABEL = {
+    phone: 'گوشی',
+    laptop: 'لپ‌تاپ',
+    tablet: 'تبلت',
+    tv: 'تلویزیون',
+    desktop: 'رایانه',
+  };
+
+  /* ---------- Render helpers ---------- */
+  const $app = document.getElementById('app');
+  const $modalRoot = document.getElementById('modal-root');
+  const $toasts = document.getElementById('toasts');
+
+  function connLabel() {
+    switch (state.connection) {
+      case 'connecting': return 'در حال اتصال…';
+      case 'connected': return 'متصل';
+      case 'disconnected': return 'قطع شد';
+      default: return 'آماده';
+    }
+  }
+
+  function renderMode() {
+    return (
+      '<div class="mode-screen fade-in">' +
+        '<div class="mode-header">' +
+          '<h1>اتصال دستگاه‌ها</h1>' +
+          '<p>نقش این دستگاه را انتخاب کنید</p>' +
+        '</div>' +
+        '<div class="mode-cards">' +
+          '<button class="mode-card" data-mode="monitor">' +
+            '<div class="mode-icon">' + svg(S.monitor, 28) + '</div>' +
+            '<div class="mode-title">Monitor</div>' +
+            '<div class="mode-desc">نمایش محتوای دستگاه دیگر</div>' +
+          '</button>' +
+          '<button class="mode-card" data-mode="controller">' +
+            '<div class="mode-icon">' + svg(S.sliders, 28) + '</div>' +
+            '<div class="mode-title">Controller</div>' +
+            '<div class="mode-desc">کنترل دستگاه دیگر</div>' +
+          '</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderDevicesFallback() {
+    const items = state.devices.map(function(d, i) {
+      return (
+        '<button class="device-item" data-device="' + d.id + '" style="animation-delay:' + (i * 55) + 'ms">' +
+          '<div class="device-icon">' + icon(d.type, 20) + '</div>' +
+          '<div class="device-info">' +
+            '<div class="device-name">' + d.name + '</div>' +
+            '<div class="device-type">' + (TYPE_LABEL[d.type] || 'دستگاه') + '</div>' +
+          '</div>' +
+          '<div class="device-arrow">' + svg(S.chevronLeft, 18) + '</div>' +
+        '</button>'
+      );
+    }).join('');
+
+    const modeLabel = state.mode === 'monitor' ? 'Monitor' : 'Controller';
+
+    return (
+      '<div class="devices-screen fade-in">' +
+        '<div class="topbar">' +
+          '<button class="icon-btn" data-act="back">' + svg(S.back, 16) + ' بازگشت</button>' +
+          '<div class="mode-badge">' + modeLabel + '</div>' +
+        '</div>' +
+        '<div class="devices-header">' +
+          '<h2>دستگاه‌های موجود</h2>' +
+          '<div class="scan-status"><span class="scan-dot"></span>جست‌وجو در شبکه</div>' +
+        '</div>' +
+        (items
+          ? '<div class="device-list">' + items + '</div>'
+          : '<div class="empty-state">' + svg(S.wifi, 32) + '<div>دستگاهی در شبکه یافت نشد</div></div>') +
+      '</div>'
+    );
+  }
+
+  function renderConnectionVisual() {
+    const target = state.target;
+    const selfModeLabel = state.mode === 'monitor' ? 'Monitor' : 'Controller';
+    const targetModeLabel = state.mode === 'monitor' ? 'Controller' : 'Monitor';
+    return (
+      '<div class="connection-visual">' +
+        '<div class="device-node">' +
+          '<div class="node-icon">' + icon(SELF.type, 20) + '</div>' +
+          '<div class="node-label">شما · ' + selfModeLabel + '</div>' +
+        '</div>' +
+        '<div class="conn-line ' + (state.connection === 'connected' ? 'connected' : '') + '"></div>' +
+        '<div class="device-node target">' +
+          '<div class="node-icon">' + icon(target.type, 20) + '</div>' +
+          '<div class="node-label">' + target.name + ' · ' + targetModeLabel + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderController() {
+    const isConnected = state.connection === 'connected';
+    const isConnecting = state.connection === 'connecting';
+
+    const controls = isConnected
+      ? (
+        '<div class="control-panel slide-up">' +
+          '<div class="control-section">' +
+            '<div class="control-label">پخش رسانه</div>' +
+            '<div class="media-controls">' +
+              '<button class="ctrl-btn" data-act="prev" aria-label="قبلی">' + svg(S.prev, 18) + '</button>' +
+              '<button class="ctrl-btn primary" data-act="play" aria-label="پخش/توقف">' +
+                (state.playing ? svg(S.pause, 22) : svg(S.play, 22)) +
+              '</button>' +
+              '<button class="ctrl-btn" data-act="next" aria-label="بعدی">' + svg(S.next, 18) + '</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="control-section">' +
+            '<div class="control-label">صدا <span class="value" id="vol-label">' + state.volume + '%</span></div>' +
+            '<input type="range" class="slider" id="volume-slider" min="0" max="100" value="' + state.volume + '">' +
+          '</div>' +
+          '<div class="control-section">' +
+            '<div class="control-label">ارسال پیام</div>' +
+            '<div class="message-row">' +
+              '<input type="text" class="text-input" id="message-input" placeholder="متنی برای نمایش روی مانیتور…">' +
+              '<button class="btn-primary" data-act="send">ارسال</button>' +
+            '</div>' +
+          '</div>' +
+          (state.lastSent
+            ? '<div class="last-sent"><span class="last-sent-label">✓ ارسال شد</span><span class="last-sent-value">' + escapeHtml(state.lastSent) + '</span></div>'
+            : '') +
+        '</div>'
+      )
+      : (
+        '<div class="control-panel" style="align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;text-align:center;">' +
+          (isConnecting ? 'در حال برقراری اتصال…' : 'اتصال برقرار نیست') +
+        '</div>'
+      );
+
+    return (
+      '<div class="session-screen fade-in">' +
+        '<div class="topbar">' +
+          '<div class="conn-pill ' + state.connection + '"><span class="conn-dot"></span>' + connLabel() + '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            (isConnected ? '<button class="icon-btn" data-act="switch">' + svg(S.switch, 14) + ' تغییر دستگاه</button>' : '') +
+            '<button class="icon-btn" data-act="disconnect">' + svg(S.x, 14) + ' قطع</button>' +
+          '</div>' +
+        '</div>' +
+        renderConnectionVisual() +
+        controls +
+      '</div>'
+    );
+  }
+
+  function renderMonitor() {
+    const target = state.target;
+    const isConnected = state.connection === 'connected';
+    const isConnecting = state.connection === 'connecting';
+
+    let displayContent;
+    if (isConnecting) {
+      displayContent =
+        '<div class="display-content">' +
+          '<div class="display-icon">' + svg(S.refresh, 44) + '</div>' +
+          '<div class="display-title">در حال اتصال…</div>' +
+          '<div class="display-sub">' + target.name + '</div>' +
+        '</div>';
+    } else if (isConnected) {
+      displayContent =
+        '<div class="display-content">' +
+          '<div class="display-icon">' + svg(S.monitor, 52) + '</div>' +
+          '<div class="display-title">آماده دریافت محتوا</div>' +
+          '<div class="display-sub">متصل به ' + target.name + '</div>' +
+        '</div>';
+    } else {
+      displayContent =
+        '<div class="display-content">' +
+          '<div class="display-icon">' + svg(S.monitor, 52) + '</div>' +
+          '<div class="display-title">اتصال قطع شد</div>' +
+          '<div class="display-sub">در انتظار اتصال مجدد</div>' +
+        '</div>';
+    }
+
+    return (
+      '<div class="session-screen monitor-screen fade-in">' +
+        '<div class="topbar">' +
+          '<div class="conn-pill ' + state.connection + '"><span class="conn-dot"></span>' + connLabel() + '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            (isConnected ? '<button class="icon-btn" data-act="switch">' + svg(S.switch, 14) + ' تغییر</button>' : '') +
+            '<button class="icon-btn" data-act="disconnect">' + svg(S.x, 14) + ' قطع</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="monitor-display">' +
+          (isConnected ? '<div class="display-pulse"></div>' : '') +
+          displayContent +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderSession() {
+    return state.mode === 'monitor' ? renderMonitor() : renderController();
+  }
+
+  function renderSwitcher() {
+    const items = state.devices.filter(function(d) {
+      return !state.target || d.id !== state.target.id;
+    }).map(function(d) {
+      return (
+        '<button class="device-item" data-switch="' + d.id + '">' +
+          '<div class="device-icon">' + icon(d.type, 20) + '</div>' +
+          '<div class="device-info">' +
+            '<div class="device-name">' + d.name + '</div>' +
+            '<div class="device-type">' + (TYPE_LABEL[d.type] || 'دستگاه') + '</div>' +
+          '</div>' +
+          '<div class="device-arrow">' + svg(S.chevronLeft, 18) + '</div>' +
+        '</button>'
+      );
+    }).join('');
+
+    return (
+      '<div class="modal-overlay" id="switcher-overlay">' +
+        '<div class="modal">' +
+          '<div class="modal-header">' +
+            '<h3>انتخاب دستگاه</h3>' +
+            '<button class="modal-close" id="switcher-close" aria-label="بستن">' + svg(S.x, 18) + '</button>' +
+          '</div>' +
+          (items
+            ? '<div class="device-list">' + items + '</div>'
+            : '<div class="empty-state">' + svg(S.wifi, 28) + '<div>دستگاه دیگری موجود نیست</div></div>') +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ---------- Main render ---------- */
+  function render() {
+    document.body.classList.toggle('monitor-mode', state.view === 'session' && state.mode === 'monitor');
+
+    if (state.view === 'mode') {
+      $app.innerHTML = renderMode();
+    } else if (state.view === 'devices') {
+      $app.innerHTML = renderDevicesFallback();
+    } else {
+      $app.innerHTML = renderSession();
+    }
+
+    if (state.showSwitcher) {
+      $modalRoot.innerHTML = renderSwitcher();
+      const overlay = document.getElementById('switcher-overlay');
+      const closeBtn = document.getElementById('switcher-close');
+      if (overlay) {
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) closeSwitcher();
+        });
+      }
+      if (closeBtn) closeBtn.addEventListener('click', closeSwitcher);
+    } else {
+      $modalRoot.innerHTML = '';
+    }
+
+    attachHandlers();
+  }
+
+  function attachHandlers() {
+    const slider = document.getElementById('volume-slider');
+    if (slider) {
+      slider.addEventListener('input', function(e) {
+        state.volume = parseInt(e.target.value, 10);
+        const lbl = document.getElementById('vol-label');
+        if (lbl) lbl.textContent = state.volume + '%';
+      });
+    }
+    const msgInput = document.getElementById('message-input');
+    if (msgInput) {
+      msgInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') sendMessage();
+      });
+    }
+  }
+
+  /* ---------- Actions ---------- */
+  // انتخاب حالت → اتصال خودکار به اولین دستگاه موجود
+  function selectMode(mode) {
+    state.mode = mode;
+
+    if (state.devices.length === 0) {
+      state.view = 'devices';
+      render();
+      return;
+    }
+
+    const device = state.devices[0];
+    state.target = device;
+    state.view = 'session';
+    state.connection = 'connecting';
+    state.lastSent = null;
+    state.playing = false;
+    render();
+
+    setTimeout(function() {
+      if (state.target && state.target.id === device.id && state.connection === 'connecting') {
+        state.connection = 'connected';
+        render();
+        toast('اتصال مستقیم به ' + device.name + ' برقرار شد');
+      }
+    }, 700);
+  }
+
+  function backToMode() {
+    state.view = 'mode';
+    state.mode = null;
+    state.target = null;
+    state.connection = 'idle';
+    state.lastSent = null;
+    render();
+  }
+
+  // اتصال به یک دستگاه مشخص (پشتیبان / انتخاب دستی)
+  function connectTo(id) {
+    const device = state.devices.find(function(d) { return d.id === id; });
+    if (!device) return;
+
+    state.target = device;
+    state.view = 'session';
+    state.connection = 'connecting';
+    state.lastSent = null;
+    render();
+
+    setTimeout(function() {
+      if (state.target && state.target.id === device.id && state.connection === 'connecting') {
+        state.connection = 'connected';
+        render();
+        toast('اتصال به ' + device.name + ' برقرار شد');
+      }
+    }, 700);
+  }
+
+  function switchTo(id) {
+    const device = state.devices.find(function(d) { return d.id === id; });
+    if (!device) return;
+
+    state.showSwitcher = false;
+    state.connection = 'connecting';
+    state.lastSent = null;
+    render();
+
+    setTimeout(function() {
+      state.target = device;
+      state.connection = 'connected';
+      render();
+      toast('به ' + device.name + ' متصل شد');
+    }, 600);
+  }
+
+  function openSwitcher() {
+    state.showSwitcher = true;
+    render();
+  }
+
+  function closeSwitcher() {
+    state.showSwitcher = false;
+    render();
+  }
+
+  function disconnect() {
+    state.connection = 'disconnected';
+    render();
+    toast('اتصال قطع شد');
+
+    setTimeout(function() {
+      backToMode();
+    }, 650);
+  }
+
+  function togglePlay() {
+    state.playing = !state.playing;
+    render();
+    toast(state.playing ? 'پخش شد' : 'متوقف شد');
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('message-input');
+    if (!input) return;
+    const value = input.value.trim();
+    if (!value) return;
+    state.lastSent = value;
+    render();
+    toast('پیام ارسال شد');
+  }
+
+  function sendNav(dir) {
+    toast(dir === 'prev' ? 'قبلی' : 'بعدی');
+  }
+
+  /* ---------- Toast ---------- */
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    $toasts.appendChild(el);
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() { el.classList.add('show'); });
+    });
+    setTimeout(function() {
+      el.classList.remove('show');
+      setTimeout(function() { el.remove(); }, 300);
+    }, 2200);
+  }
+
+  /* ---------- Event delegation ---------- */
+  document.addEventListener('click', function(e) {
+    const modeCard = e.target.closest('[data-mode]');
+    if (modeCard) { selectMode(modeCard.dataset.mode); return; }
+
+    const deviceItem = e.target.closest('[data-device]');
+    if (deviceItem) { connectTo(deviceItem.dataset.device); return; }
+
+    const switchItem = e.target.closest('[data-switch]');
+    if (switchItem) { switchTo(switchItem.dataset.switch); return; }
+
+    const actEl = e.target.closest('[data-act]');
+    if (actEl) {
+      switch (actEl.dataset.act) {
+        case 'back': backToMode(); break;
+        case 'disconnect': disconnect(); break;
+        case 'switch': openSwitcher(); break;
+        case 'play': togglePlay(); break;
+        case 'prev': sendNav('prev'); break;
+        case 'next': sendNav('next'); break;
+        case 'send': sendMessage(); break;
+      }
+    }
+  });
+
+  /* ---------- Init ---------- */
+  render();
+})();
+</script>
+</body>
+  </html>
